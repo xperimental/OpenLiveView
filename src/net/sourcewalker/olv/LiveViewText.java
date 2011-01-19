@@ -1,5 +1,6 @@
 package net.sourcewalker.olv;
 
+import net.sourcewalker.olv.messages.impl.CapsRequest;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -15,5 +16,8 @@ public class LiveViewText extends Activity {
         setContentView(R.layout.main);
 
         textView = (TextView) findViewById(R.id.text);
+
+        byte[] msg = new CapsRequest().getEncoded();
+        textView.setText(new String(msg));
     }
 }
