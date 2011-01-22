@@ -5,12 +5,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import net.sourcewalker.olv.messages.EncodingException;
-import net.sourcewalker.olv.messages.LiveViewMessage;
+import net.sourcewalker.olv.messages.LiveViewRequest;
 import net.sourcewalker.olv.messages.MessageConstants;
 
-public class CapsRequest extends LiveViewMessage {
-
-    private static final byte HEADER_LENGTH = 1;
+public class CapsRequest extends LiveViewRequest {
 
     public CapsRequest() {
         super(MessageConstants.MSG_GETCAPS);
@@ -25,8 +23,8 @@ public class CapsRequest extends LiveViewMessage {
         try {
             byte[] version = MessageConstants.CLIENT_SOFTWARE_VERSION
                     .getBytes("iso-8859-1");
-            byte msgLength = (byte) (HEADER_LENGTH + version.length);
-            ByteBuffer buffer = ByteBuffer.allocate(msgLength);
+            byte msgLength = (byte) version.length;
+            ByteBuffer buffer = ByteBuffer.allocate(msgLength + 1);
             buffer.order(ByteOrder.BIG_ENDIAN);
             buffer.put(msgLength);
             buffer.put(version);
