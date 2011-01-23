@@ -1,5 +1,6 @@
 package net.sourcewalker.olv;
 
+import net.sourcewalker.olv.service.BTReceiver;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +13,7 @@ public class LiveViewText extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        startService(new Intent(this, BluetoothService.class));
+        sendBroadcast(new Intent(this, BTReceiver.class));
     }
 
 }

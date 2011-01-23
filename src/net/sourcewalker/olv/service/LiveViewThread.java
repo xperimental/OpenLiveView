@@ -1,4 +1,4 @@
-package net.sourcewalker.olv;
+package net.sourcewalker.olv.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,36 +19,34 @@ import net.sourcewalker.olv.messages.calls.NavigationResponse;
 import net.sourcewalker.olv.messages.calls.SetMenuSize;
 import net.sourcewalker.olv.messages.events.CapsResponse;
 import net.sourcewalker.olv.messages.events.Navigation;
-import android.app.IntentService;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.Intent;
+import android.content.Context;
 import android.util.Log;
 
-public class BluetoothService extends IntentService {
+/**
+ * @author Robert &lt;xperimental@solidproject.de&gt;
+ */
+public class LiveViewThread extends Thread {
 
-    private static final String TAG = "BluetoothService";
+    private static final String TAG = "LiveViewThread";
 
     private static final UUID SERIAL = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    private byte[] menuImage;
+    private final byte[] menuImage;
 
-    public BluetoothService() {
-        super("BluetoothServiceThread");
-    }
+    private final BluetoothAdapter btAdapter;
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.IntentService#onCreate()
-     */
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    private boolean keepRunning = true;
 
+    public LiveViewThread(Context context) {
+        super("LiveViewThread");
+
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
         try {
-            InputStream stream = getAssets().open("menu_blank.png");
+            InputStream stream = context.getAssets().open("menu_blank.png");
             ByteArrayOutputStream arrayStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             while (stream.available() > 0) {
@@ -60,16 +58,18 @@ public class BluetoothService extends IntentService {
             Log.d(TAG, "Menu icon size: " + menuImage.length);
         } catch (IOException e) {
             Log.e(TAG, "Error reading menu icon: " + e.getMessage());
+            throw new RuntimeException("Error reading menu icon: "
+                    + e.getMessage(), e);
         }
     }
 
     /*
      * (non-Javadoc)
-     * @see android.app.IntentService#onHandleIntent(android.content.Intent)
+     * @see java.lang.Thread#run()
      */
     @Override
-    protected void onHandleIntent(Intent i) {
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+    public void run() {
+        Log.d(TAG, "Starting LiveView thread.");
         if (btAdapter.isEnabled()) {
             Log.d(TAG, "BT enabled");
             BluetoothServerSocket serverSocket = null;
@@ -84,7 +84,7 @@ public class BluetoothService extends IntentService {
             do {
                 try {
                     Log.d(TAG, "Listening for LV...");
-                    BluetoothSocket socket = serverSocket.accept();
+                    BluetoothSocket socket = serverSocket.accept(60000);
                     Log.d(TAG, "LV connected.");
                     byte[] request = new CapsRequest().getEncoded();
                     socket.getOutputStream().write(request);
@@ -155,9 +155,27 @@ public class BluetoothService extends IntentService {
                     } while (read != -1);
                     socket.close();
                 } catch (IOException e) {
-                    Log.e(TAG, "Error communicating with LV: " + e.getMessage());
+                    String msg = e.getMessage();
+                    if (!msg.contains("Connection timed out")) {
+                        Log.e(TAG,
+                                "Error communicating with LV: "
+                                        + e.getMessage());
+                    }
                 }
-            } while (true);
+            } while (keepRunning);
+        } else {
+            Log.e(TAG, "No BT available!");
         }
+        Log.d(TAG, "Stopped LiveView thread.");
     }
+
+    public void stopLoop() {
+        keepRunning = false;
+    }
+
+    public boolean isLooping() {
+        // TODO Auto-generated method stub
+        return keepRunning;
+    }
+
 }
