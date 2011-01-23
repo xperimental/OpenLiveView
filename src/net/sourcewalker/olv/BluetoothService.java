@@ -1,14 +1,25 @@
 package net.sourcewalker.olv;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 
 import net.sourcewalker.olv.messages.DecodeException;
 import net.sourcewalker.olv.messages.LiveViewResponse;
 import net.sourcewalker.olv.messages.MessageConstants;
 import net.sourcewalker.olv.messages.MessageDecoder;
-import net.sourcewalker.olv.messages.impl.CapsRequest;
-import net.sourcewalker.olv.messages.impl.CapsResponse;
+import net.sourcewalker.olv.messages.UShort;
+import net.sourcewalker.olv.messages.request.Ack;
+import net.sourcewalker.olv.messages.request.CapsRequest;
+import net.sourcewalker.olv.messages.request.DeviceStatusAck;
+import net.sourcewalker.olv.messages.request.GetTimeRequest;
+import net.sourcewalker.olv.messages.request.MenuItem;
+import net.sourcewalker.olv.messages.request.NavigationResponse;
+import net.sourcewalker.olv.messages.request.SetMenuSize;
+import net.sourcewalker.olv.messages.response.CapsResponse;
+import net.sourcewalker.olv.messages.response.DeviceStatus;
+import net.sourcewalker.olv.messages.response.Navigation;
 import android.app.IntentService;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
@@ -23,8 +34,34 @@ public class BluetoothService extends IntentService {
     private static final UUID SERIAL = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+    private byte[] menuImage;
+
     public BluetoothService() {
         super("BluetoothServiceThread");
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see android.app.IntentService#onCreate()
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        try {
+            InputStream stream = getAssets().open("menu_blank.png");
+            ByteArrayOutputStream arrayStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            while (stream.available() > 0) {
+                int read = stream.read(buffer);
+                arrayStream.write(buffer, 0, read);
+            }
+            stream.close();
+            menuImage = arrayStream.toByteArray();
+            Log.d(TAG, "Menu icon size: " + menuImage.length);
+        } catch (IOException e) {
+            Log.e(TAG, "Error reading menu icon: " + e.getMessage());
+        }
     }
 
     /*
@@ -57,16 +94,58 @@ public class BluetoothService extends IntentService {
                     int read;
                     do {
                         read = socket.getInputStream().read(buffer);
-                        Log.d(TAG, "Received: " + read);
+                        Log.d(TAG, "Received " + read + " bytes.");
                         if (read != -1) {
                             try {
                                 LiveViewResponse response = MessageDecoder
                                         .decode(buffer, read);
-                                if (response.getId() == MessageConstants.MSG_GETCAPS_RESP) {
+                                socket.getOutputStream().write(
+                                        new Ack(response.getId()).getEncoded());
+                                Log.d(TAG, "Got message: " + response);
+                                switch (response.getId()) {
+                                case MessageConstants.MSG_GETCAPS_RESP:
                                     CapsResponse caps = (CapsResponse) response;
                                     Log.d(TAG,
                                             "LV capabilities: "
                                                     + caps.toString());
+                                    socket.getOutputStream().write(
+                                            new SetMenuSize((byte) 1)
+                                                    .getEncoded());
+                                    break;
+                                case MessageConstants.MSG_GETTIME:
+                                    Log.d(TAG, "Sending current time...");
+                                    socket.getOutputStream().write(
+                                            new GetTimeRequest().getEncoded());
+                                    break;
+                                case MessageConstants.MSG_DEVICESTATUS:
+                                    DeviceStatus status = (DeviceStatus) response;
+                                    Log.d(TAG, "Acknowledging status.");
+                                    socket.getOutputStream().write(
+                                            new DeviceStatusAck().getEncoded());
+                                    break;
+                                case MessageConstants.MSG_GETMENUITEMS:
+                                    Log.d(TAG, "Sending menu items...");
+                                    socket.getOutputStream().write(
+                                            new MenuItem((byte) 0, false,
+                                                    new UShort((short) 0),
+                                                    "Test", menuImage)
+                                                    .getEncoded());
+                                    break;
+                                case MessageConstants.MSG_NAVIGATION:
+                                    Navigation nav = (Navigation) response;
+                                    if (nav.getNavAction() == MessageConstants.NAVACTION_PRESS
+                                            && nav.getNavType() == MessageConstants.NAVTYPE_MENUSELECT) {
+                                        socket.getOutputStream()
+                                                .write(new NavigationResponse(
+                                                        MessageConstants.RESULT_OK)
+                                                        .getEncoded());
+                                    } else {
+                                        Log.d(TAG, "Bringing back to menu.");
+                                        socket.getOutputStream()
+                                                .write(new NavigationResponse(
+                                                        MessageConstants.RESULT_CANCEL)
+                                                        .getEncoded());
+                                    }
                                 }
                             } catch (DecodeException e) {
                                 Log.e(TAG,

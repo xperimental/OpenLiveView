@@ -1,4 +1,4 @@
-package net.sourcewalker.olv.messages.impl;
+package net.sourcewalker.olv.messages.request;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;

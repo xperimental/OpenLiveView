@@ -4,20 +4,16 @@ public class UByte {
 
     private short value;
 
-    public short getValue() {
-        return value;
+    public byte getValue() {
+        return (byte) (value & 0xFF);
     }
 
-    public void setValue(short value) {
+    public void setValue(byte value) {
         this.value = (short) (value & 0xFF);
-    }
-
-    public UByte(short value) {
-        setValue(value);
     }
 
     public UByte(byte value) {
-        this.value = (short) (value & 0xFF);
+        setValue(value);
     }
 
     /*

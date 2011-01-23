@@ -67,11 +67,11 @@ public final class MessageConstants {
     public static final int DEVICESTATUS_ON = 1;
     public static final int DEVICESTATUS_MENU = 2;
 
-    public static final int RESULT_OK = 0;
-    public static final int RESULT_ERROR = 1;
-    public static final int RESULT_OOM = 2;
-    public static final int RESULT_EXIT = 3;
-    public static final int RESULT_CANCEL = 4;
+    public static final byte RESULT_OK = 0;
+    public static final byte RESULT_ERROR = 1;
+    public static final byte RESULT_OOM = 2;
+    public static final byte RESULT_EXIT = 3;
+    public static final byte RESULT_CANCEL = 4;
 
     public static final int NAVACTION_PRESS = 0;
     public static final int NAVACTION_LONGPRESS = 1;

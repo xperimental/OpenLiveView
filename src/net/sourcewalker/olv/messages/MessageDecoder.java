@@ -2,15 +2,31 @@ package net.sourcewalker.olv.messages;
 
 import java.nio.ByteBuffer;
 
-import net.sourcewalker.olv.messages.impl.CapsResponse;
+import net.sourcewalker.olv.messages.response.CapsResponse;
+import net.sourcewalker.olv.messages.response.DeviceStatus;
+import net.sourcewalker.olv.messages.response.GetTimeResponse;
+import net.sourcewalker.olv.messages.response.MenuItemsResponse;
+import net.sourcewalker.olv.messages.response.Navigation;
+import net.sourcewalker.olv.messages.response.ResultResponse;
 
 public final class MessageDecoder {
 
-    private static Class<? extends LiveViewResponse> getClassForId(byte id)
+    private static LiveViewResponse newInstanceForId(byte id)
             throws DecodeException {
         switch (id) {
         case MessageConstants.MSG_GETCAPS_RESP:
-            return CapsResponse.class;
+            return new CapsResponse();
+        case MessageConstants.MSG_SETVIBRATE_ACK:
+        case MessageConstants.MSG_SETLED_ACK:
+            return new ResultResponse(id);
+        case MessageConstants.MSG_GETTIME:
+            return new GetTimeResponse();
+        case MessageConstants.MSG_GETMENUITEMS:
+            return new MenuItemsResponse();
+        case MessageConstants.MSG_DEVICESTATUS:
+            return new DeviceStatus();
+        case MessageConstants.MSG_NAVIGATION:
+            return new Navigation();
         default:
             throw new DecodeException("No message found matching ID: " + id);
         }
@@ -23,15 +39,9 @@ public final class MessageDecoder {
         buffer.get();
         int payloadLen = buffer.getInt();
         if (payloadLen + 6 == length) {
-            try {
-                LiveViewResponse result = getClassForId(msgId).newInstance();
-                result.readData(buffer);
-                return result;
-            } catch (IllegalAccessException e) {
-                throw new DecodeException(e);
-            } catch (InstantiationException e) {
-                throw new DecodeException(e);
-            }
+            LiveViewResponse result = newInstanceForId(msgId);
+            result.readData(buffer);
+            return result;
         } else {
             throw new DecodeException("Invalid message length: "
                     + message.length + " (should be " + (payloadLen + 6) + ")");
