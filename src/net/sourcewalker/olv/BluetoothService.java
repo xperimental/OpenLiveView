@@ -10,15 +10,14 @@ import net.sourcewalker.olv.messages.LiveViewEvent;
 import net.sourcewalker.olv.messages.MessageConstants;
 import net.sourcewalker.olv.messages.MessageDecoder;
 import net.sourcewalker.olv.messages.UShort;
-import net.sourcewalker.olv.messages.calls.MessageAck;
 import net.sourcewalker.olv.messages.calls.CapsRequest;
 import net.sourcewalker.olv.messages.calls.DeviceStatusAck;
 import net.sourcewalker.olv.messages.calls.GetTimeResponse;
 import net.sourcewalker.olv.messages.calls.MenuItem;
+import net.sourcewalker.olv.messages.calls.MessageAck;
 import net.sourcewalker.olv.messages.calls.NavigationResponse;
 import net.sourcewalker.olv.messages.calls.SetMenuSize;
 import net.sourcewalker.olv.messages.events.CapsResponse;
-import net.sourcewalker.olv.messages.events.DeviceStatus;
 import net.sourcewalker.olv.messages.events.Navigation;
 import android.app.IntentService;
 import android.bluetooth.BluetoothAdapter;
@@ -97,10 +96,11 @@ public class BluetoothService extends IntentService {
                         Log.d(TAG, "Received " + read + " bytes.");
                         if (read != -1) {
                             try {
-                                LiveViewEvent response = MessageDecoder
-                                        .decode(buffer, read);
+                                LiveViewEvent response = MessageDecoder.decode(
+                                        buffer, read);
                                 socket.getOutputStream().write(
-                                        new MessageAck(response.getId()).getEncoded());
+                                        new MessageAck(response.getId())
+                                                .getEncoded());
                                 Log.d(TAG, "Got message: " + response);
                                 switch (response.getId()) {
                                 case MessageConstants.MSG_GETCAPS_RESP:
@@ -118,7 +118,6 @@ public class BluetoothService extends IntentService {
                                             new GetTimeResponse().getEncoded());
                                     break;
                                 case MessageConstants.MSG_DEVICESTATUS:
-                                    DeviceStatus status = (DeviceStatus) response;
                                     Log.d(TAG, "Acknowledging status.");
                                     socket.getOutputStream().write(
                                             new DeviceStatusAck().getEncoded());
