@@ -1,13 +1,13 @@
-package net.sourcewalker.olv.messages.response;
+package net.sourcewalker.olv.messages.events;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import net.sourcewalker.olv.messages.LiveViewResponse;
+import net.sourcewalker.olv.messages.LiveViewEvent;
 import net.sourcewalker.olv.messages.MessageConstants;
 import net.sourcewalker.olv.messages.UByte;
 
-public class CapsResponse extends LiveViewResponse {
+public class CapsResponse extends LiveViewEvent {
 
     private UByte width;
     private UByte height;

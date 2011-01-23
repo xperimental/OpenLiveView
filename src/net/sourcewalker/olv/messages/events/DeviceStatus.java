@@ -1,11 +1,11 @@
-package net.sourcewalker.olv.messages.response;
+package net.sourcewalker.olv.messages.events;
 
 import java.nio.ByteBuffer;
 
-import net.sourcewalker.olv.messages.LiveViewResponse;
+import net.sourcewalker.olv.messages.LiveViewEvent;
 import net.sourcewalker.olv.messages.MessageConstants;
 
-public class DeviceStatus extends LiveViewResponse {
+public class DeviceStatus extends LiveViewEvent {
 
     private byte status;
 

@@ -1,16 +1,16 @@
-package net.sourcewalker.olv.messages.request;
+package net.sourcewalker.olv.messages.calls;
 
-import net.sourcewalker.olv.messages.LiveViewRequest;
+import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.MessageConstants;
 
 /**
  * @author Xperimental
  */
-public class Ack extends LiveViewRequest {
+public class MessageAck extends LiveViewCall {
 
     private final byte ackMsgId;
 
-    public Ack(byte ackMsgId) {
+    public MessageAck(byte ackMsgId) {
         super(MessageConstants.MSG_ACK);
         this.ackMsgId = ackMsgId;
     }

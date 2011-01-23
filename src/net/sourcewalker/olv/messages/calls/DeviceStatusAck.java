@@ -1,9 +1,9 @@
-package net.sourcewalker.olv.messages.request;
+package net.sourcewalker.olv.messages.calls;
 
-import net.sourcewalker.olv.messages.LiveViewRequest;
+import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.MessageConstants;
 
-public class DeviceStatusAck extends LiveViewRequest {
+public class DeviceStatusAck extends LiveViewCall {
 
     public DeviceStatusAck() {
         super(MessageConstants.MSG_DEVICESTATUS_ACK);

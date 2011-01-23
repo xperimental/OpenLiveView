@@ -2,27 +2,27 @@ package net.sourcewalker.olv.messages;
 
 import java.nio.ByteBuffer;
 
-import net.sourcewalker.olv.messages.response.CapsResponse;
-import net.sourcewalker.olv.messages.response.DeviceStatus;
-import net.sourcewalker.olv.messages.response.GetTimeResponse;
-import net.sourcewalker.olv.messages.response.MenuItemsResponse;
-import net.sourcewalker.olv.messages.response.Navigation;
-import net.sourcewalker.olv.messages.response.ResultResponse;
+import net.sourcewalker.olv.messages.events.CapsResponse;
+import net.sourcewalker.olv.messages.events.DeviceStatus;
+import net.sourcewalker.olv.messages.events.GetTime;
+import net.sourcewalker.olv.messages.events.GetMenuItems;
+import net.sourcewalker.olv.messages.events.Navigation;
+import net.sourcewalker.olv.messages.events.ResultEvent;
 
 public final class MessageDecoder {
 
-    private static LiveViewResponse newInstanceForId(byte id)
+    private static LiveViewEvent newInstanceForId(byte id)
             throws DecodeException {
         switch (id) {
         case MessageConstants.MSG_GETCAPS_RESP:
             return new CapsResponse();
         case MessageConstants.MSG_SETVIBRATE_ACK:
         case MessageConstants.MSG_SETLED_ACK:
-            return new ResultResponse(id);
+            return new ResultEvent(id);
         case MessageConstants.MSG_GETTIME:
-            return new GetTimeResponse();
+            return new GetTime();
         case MessageConstants.MSG_GETMENUITEMS:
-            return new MenuItemsResponse();
+            return new GetMenuItems();
         case MessageConstants.MSG_DEVICESTATUS:
             return new DeviceStatus();
         case MessageConstants.MSG_NAVIGATION:
@@ -32,14 +32,14 @@ public final class MessageDecoder {
         }
     }
 
-    public static final LiveViewResponse decode(byte[] message, int length)
+    public static final LiveViewEvent decode(byte[] message, int length)
             throws DecodeException {
         ByteBuffer buffer = ByteBuffer.wrap(message, 0, length);
         byte msgId = buffer.get();
         buffer.get();
         int payloadLen = buffer.getInt();
         if (payloadLen + 6 == length) {
-            LiveViewResponse result = newInstanceForId(msgId);
+            LiveViewEvent result = newInstanceForId(msgId);
             result.readData(buffer);
             return result;
         } else {

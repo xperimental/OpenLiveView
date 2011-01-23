@@ -3,14 +3,14 @@ package net.sourcewalker.olv.messages;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public abstract class LiveViewRequest extends LiveViewMessage {
+public abstract class LiveViewCall extends LiveViewMessage {
 
     /**
      * Header consists of two bytes and a int value (4 bytes).
      */
     private static final int HEADER_LENGTH = 6;
 
-    public LiveViewRequest(byte id) {
+    public LiveViewCall(byte id) {
         super(id);
     }
 

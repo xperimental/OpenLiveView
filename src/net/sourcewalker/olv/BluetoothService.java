@@ -6,20 +6,20 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import net.sourcewalker.olv.messages.DecodeException;
-import net.sourcewalker.olv.messages.LiveViewResponse;
+import net.sourcewalker.olv.messages.LiveViewEvent;
 import net.sourcewalker.olv.messages.MessageConstants;
 import net.sourcewalker.olv.messages.MessageDecoder;
 import net.sourcewalker.olv.messages.UShort;
-import net.sourcewalker.olv.messages.request.Ack;
-import net.sourcewalker.olv.messages.request.CapsRequest;
-import net.sourcewalker.olv.messages.request.DeviceStatusAck;
-import net.sourcewalker.olv.messages.request.GetTimeRequest;
-import net.sourcewalker.olv.messages.request.MenuItem;
-import net.sourcewalker.olv.messages.request.NavigationResponse;
-import net.sourcewalker.olv.messages.request.SetMenuSize;
-import net.sourcewalker.olv.messages.response.CapsResponse;
-import net.sourcewalker.olv.messages.response.DeviceStatus;
-import net.sourcewalker.olv.messages.response.Navigation;
+import net.sourcewalker.olv.messages.calls.MessageAck;
+import net.sourcewalker.olv.messages.calls.CapsRequest;
+import net.sourcewalker.olv.messages.calls.DeviceStatusAck;
+import net.sourcewalker.olv.messages.calls.GetTimeResponse;
+import net.sourcewalker.olv.messages.calls.MenuItem;
+import net.sourcewalker.olv.messages.calls.NavigationResponse;
+import net.sourcewalker.olv.messages.calls.SetMenuSize;
+import net.sourcewalker.olv.messages.events.CapsResponse;
+import net.sourcewalker.olv.messages.events.DeviceStatus;
+import net.sourcewalker.olv.messages.events.Navigation;
 import android.app.IntentService;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
@@ -97,10 +97,10 @@ public class BluetoothService extends IntentService {
                         Log.d(TAG, "Received " + read + " bytes.");
                         if (read != -1) {
                             try {
-                                LiveViewResponse response = MessageDecoder
+                                LiveViewEvent response = MessageDecoder
                                         .decode(buffer, read);
                                 socket.getOutputStream().write(
-                                        new Ack(response.getId()).getEncoded());
+                                        new MessageAck(response.getId()).getEncoded());
                                 Log.d(TAG, "Got message: " + response);
                                 switch (response.getId()) {
                                 case MessageConstants.MSG_GETCAPS_RESP:
@@ -115,7 +115,7 @@ public class BluetoothService extends IntentService {
                                 case MessageConstants.MSG_GETTIME:
                                     Log.d(TAG, "Sending current time...");
                                     socket.getOutputStream().write(
-                                            new GetTimeRequest().getEncoded());
+                                            new GetTimeResponse().getEncoded());
                                     break;
                                 case MessageConstants.MSG_DEVICESTATUS:
                                     DeviceStatus status = (DeviceStatus) response;

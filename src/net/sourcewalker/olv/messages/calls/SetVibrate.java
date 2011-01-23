@@ -1,13 +1,13 @@
-package net.sourcewalker.olv.messages.request;
+package net.sourcewalker.olv.messages.calls;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import net.sourcewalker.olv.messages.LiveViewRequest;
+import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.MessageConstants;
 import net.sourcewalker.olv.messages.UShort;
 
-public class SetVibrate extends LiveViewRequest {
+public class SetVibrate extends LiveViewCall {
 
     private final UShort delay;
     private final UShort time;

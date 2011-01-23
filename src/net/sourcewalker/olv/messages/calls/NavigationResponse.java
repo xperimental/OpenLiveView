@@ -1,12 +1,12 @@
-package net.sourcewalker.olv.messages.request;
+package net.sourcewalker.olv.messages.calls;
 
-import net.sourcewalker.olv.messages.LiveViewRequest;
+import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.MessageConstants;
 
 /**
  * @author Xperimental
  */
-public class NavigationResponse extends LiveViewRequest {
+public class NavigationResponse extends LiveViewCall {
 
     private byte response;
 

@@ -1,13 +1,13 @@
-package net.sourcewalker.olv.messages.response;
+package net.sourcewalker.olv.messages.events;
 
 import java.nio.ByteBuffer;
 
-import net.sourcewalker.olv.messages.LiveViewResponse;
+import net.sourcewalker.olv.messages.LiveViewEvent;
 import net.sourcewalker.olv.messages.MessageConstants;
 
-public class MenuItemsResponse extends LiveViewResponse {
+public class GetMenuItems extends LiveViewEvent {
 
-    public MenuItemsResponse() {
+    public GetMenuItems() {
         super(MessageConstants.MSG_GETMENUITEMS);
     }
 

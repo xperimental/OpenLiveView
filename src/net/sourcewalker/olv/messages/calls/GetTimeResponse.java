@@ -1,13 +1,13 @@
-package net.sourcewalker.olv.messages.request;
+package net.sourcewalker.olv.messages.calls;
 
 import java.nio.ByteBuffer;
 
-import net.sourcewalker.olv.messages.LiveViewRequest;
+import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.MessageConstants;
 
-public class GetTimeRequest extends LiveViewRequest {
+public class GetTimeResponse extends LiveViewCall {
 
-    public GetTimeRequest() {
+    public GetTimeResponse() {
         super(MessageConstants.MSG_GETTIME_RESP);
     }
 

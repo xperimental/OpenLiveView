@@ -1,10 +1,10 @@
-package net.sourcewalker.olv.messages.response;
+package net.sourcewalker.olv.messages.events;
 
 import java.nio.ByteBuffer;
 
-import net.sourcewalker.olv.messages.LiveViewResponse;
+import net.sourcewalker.olv.messages.LiveViewEvent;
 
-public class ResultResponse extends LiveViewResponse {
+public class ResultEvent extends LiveViewEvent {
 
     private byte result;
 
@@ -12,7 +12,7 @@ public class ResultResponse extends LiveViewResponse {
         return result;
     }
 
-    public ResultResponse(byte id) {
+    public ResultEvent(byte id) {
         super(id);
     }
 

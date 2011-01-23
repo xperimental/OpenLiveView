@@ -1,9 +1,9 @@
-package net.sourcewalker.olv.messages.request;
+package net.sourcewalker.olv.messages.calls;
 
-import net.sourcewalker.olv.messages.LiveViewRequest;
+import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.MessageConstants;
 
-public class SetMenuSize extends LiveViewRequest {
+public class SetMenuSize extends LiveViewCall {
 
     private final byte menuSize;
 

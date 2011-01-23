@@ -1,14 +1,14 @@
-package net.sourcewalker.olv.messages.request;
+package net.sourcewalker.olv.messages.calls;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import net.sourcewalker.olv.messages.EncodingException;
-import net.sourcewalker.olv.messages.LiveViewRequest;
+import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.MessageConstants;
 
-public class CapsRequest extends LiveViewRequest {
+public class CapsRequest extends LiveViewCall {
 
     public CapsRequest() {
         super(MessageConstants.MSG_GETCAPS);

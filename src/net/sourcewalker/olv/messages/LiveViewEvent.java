@@ -2,9 +2,9 @@ package net.sourcewalker.olv.messages;
 
 import java.nio.ByteBuffer;
 
-public abstract class LiveViewResponse extends LiveViewMessage {
+public abstract class LiveViewEvent extends LiveViewMessage {
 
-    public LiveViewResponse(byte id) {
+    public LiveViewEvent(byte id) {
         super(id);
     }
 
