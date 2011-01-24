@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="@string/prefs_deviceaddress_key"
+        android:summary="@string/prefs_deviceaddress_summary"
+        android:title="@string/prefs_deviceaddress_title"></ListPreference>
+</PreferenceScreen>

@@ -8,7 +8,7 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name">
         <activity
-            android:name=".LiveViewText"
+            android:name=".LiveViewPreferences"
             android:label="@string/app_name">
             <intent-filter>
                 <action
@@ -23,9 +23,11 @@
             android:name=".service.BTReceiver">
             <intent-filter>
                 <action
-                    android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+                    android:name="android.bluetooth.device.action.ACL_CONNECTED" />
                 <action
-                    android:name="android.intent.action.BOOT_COMPLETED" />
+                    android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+                <action
+                    android:name="android.bluetooth.device.action.ACL_DISCONNECT_REQUESTED" />
             </intent-filter>
         </receiver>
     </application>
@@ -33,6 +35,4 @@
         android:minSdkVersion="8" />
     <uses-permission
         android:name="android.permission.BLUETOOTH" />
-    <uses-permission
-        android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 </manifest>

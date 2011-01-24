@@ -41,6 +41,8 @@ public class LiveViewThread extends Thread {
 
     private boolean keepRunning = true;
 
+    private BluetoothServerSocket serverSocket;
+
     public LiveViewThread(Context context) {
         super("LiveViewThread");
 
@@ -70,107 +72,104 @@ public class LiveViewThread extends Thread {
     @Override
     public void run() {
         Log.d(TAG, "Starting LiveView thread.");
-        if (btAdapter.isEnabled()) {
-            Log.d(TAG, "BT enabled");
-            BluetoothServerSocket serverSocket = null;
+        serverSocket = null;
+        try {
+            Log.d(TAG, "Starting server...");
+            serverSocket = btAdapter.listenUsingRfcommWithServiceRecord(
+                    "LiveView", SERIAL);
+        } catch (IOException e) {
+            Log.e(TAG, "Error starting BT server: " + e.getMessage());
+            return;
+        }
+        while (keepRunning && serverSocket != null) {
             try {
-                Log.d(TAG, "Starting server...");
-                serverSocket = btAdapter.listenUsingRfcommWithServiceRecord(
-                        "LiveView", SERIAL);
-            } catch (IOException e) {
-                Log.e(TAG, "Error starting BT server: " + e.getMessage());
-                return;
-            }
-            do {
-                try {
-                    Log.d(TAG, "Listening for LV...");
-                    BluetoothSocket socket = serverSocket.accept(60000);
-                    Log.d(TAG, "LV connected.");
-                    byte[] request = new CapsRequest().getEncoded();
-                    socket.getOutputStream().write(request);
-                    Log.d(TAG, "Message sent.");
-                    byte[] buffer = new byte[4096];
-                    int read;
-                    do {
-                        read = socket.getInputStream().read(buffer);
-                        Log.d(TAG, "Received " + read + " bytes.");
-                        if (read != -1) {
-                            try {
-                                LiveViewEvent response = MessageDecoder.decode(
-                                        buffer, read);
+                Log.d(TAG, "Listening for LV...");
+                BluetoothSocket socket = serverSocket.accept();
+                Log.d(TAG, "LV connected.");
+                byte[] request = new CapsRequest().getEncoded();
+                socket.getOutputStream().write(request);
+                Log.d(TAG, "Message sent.");
+                byte[] buffer = new byte[4096];
+                int read;
+                do {
+                    read = socket.getInputStream().read(buffer);
+                    Log.d(TAG, "Received " + read + " bytes.");
+                    if (read != -1) {
+                        try {
+                            LiveViewEvent response = MessageDecoder.decode(
+                                    buffer, read);
+                            socket.getOutputStream().write(
+                                    new MessageAck(response.getId())
+                                            .getEncoded());
+                            Log.d(TAG, "Got message: " + response);
+                            switch (response.getId()) {
+                            case MessageConstants.MSG_GETCAPS_RESP:
+                                CapsResponse caps = (CapsResponse) response;
+                                Log.d(TAG,
+                                        "LV capabilities: " + caps.toString());
                                 socket.getOutputStream().write(
-                                        new MessageAck(response.getId())
-                                                .getEncoded());
-                                Log.d(TAG, "Got message: " + response);
-                                switch (response.getId()) {
-                                case MessageConstants.MSG_GETCAPS_RESP:
-                                    CapsResponse caps = (CapsResponse) response;
-                                    Log.d(TAG,
-                                            "LV capabilities: "
-                                                    + caps.toString());
+                                        new SetMenuSize((byte) 1).getEncoded());
+                                break;
+                            case MessageConstants.MSG_GETTIME:
+                                Log.d(TAG, "Sending current time...");
+                                socket.getOutputStream().write(
+                                        new GetTimeResponse().getEncoded());
+                                break;
+                            case MessageConstants.MSG_DEVICESTATUS:
+                                Log.d(TAG, "Acknowledging status.");
+                                socket.getOutputStream().write(
+                                        new DeviceStatusAck().getEncoded());
+                                break;
+                            case MessageConstants.MSG_GETMENUITEMS:
+                                Log.d(TAG, "Sending menu items...");
+                                socket.getOutputStream().write(
+                                        new MenuItem((byte) 0, false,
+                                                new UShort((short) 0), "Test",
+                                                menuImage).getEncoded());
+                                break;
+                            case MessageConstants.MSG_NAVIGATION:
+                                Navigation nav = (Navigation) response;
+                                if (nav.getNavAction() == MessageConstants.NAVACTION_PRESS
+                                        && nav.getNavType() == MessageConstants.NAVTYPE_MENUSELECT) {
                                     socket.getOutputStream().write(
-                                            new SetMenuSize((byte) 1)
+                                            new NavigationResponse(
+                                                    MessageConstants.RESULT_OK)
                                                     .getEncoded());
-                                    break;
-                                case MessageConstants.MSG_GETTIME:
-                                    Log.d(TAG, "Sending current time...");
-                                    socket.getOutputStream().write(
-                                            new GetTimeResponse().getEncoded());
-                                    break;
-                                case MessageConstants.MSG_DEVICESTATUS:
-                                    Log.d(TAG, "Acknowledging status.");
-                                    socket.getOutputStream().write(
-                                            new DeviceStatusAck().getEncoded());
-                                    break;
-                                case MessageConstants.MSG_GETMENUITEMS:
-                                    Log.d(TAG, "Sending menu items...");
-                                    socket.getOutputStream().write(
-                                            new MenuItem((byte) 0, false,
-                                                    new UShort((short) 0),
-                                                    "Test", menuImage)
+                                } else {
+                                    Log.d(TAG, "Bringing back to menu.");
+                                    socket.getOutputStream()
+                                            .write(new NavigationResponse(
+                                                    MessageConstants.RESULT_CANCEL)
                                                     .getEncoded());
-                                    break;
-                                case MessageConstants.MSG_NAVIGATION:
-                                    Navigation nav = (Navigation) response;
-                                    if (nav.getNavAction() == MessageConstants.NAVACTION_PRESS
-                                            && nav.getNavType() == MessageConstants.NAVTYPE_MENUSELECT) {
-                                        socket.getOutputStream()
-                                                .write(new NavigationResponse(
-                                                        MessageConstants.RESULT_OK)
-                                                        .getEncoded());
-                                    } else {
-                                        Log.d(TAG, "Bringing back to menu.");
-                                        socket.getOutputStream()
-                                                .write(new NavigationResponse(
-                                                        MessageConstants.RESULT_CANCEL)
-                                                        .getEncoded());
-                                    }
                                 }
-                            } catch (DecodeException e) {
-                                Log.e(TAG,
-                                        "Error decoding message: "
-                                                + e.getMessage());
                             }
+                        } catch (DecodeException e) {
+                            Log.e(TAG,
+                                    "Error decoding message: " + e.getMessage());
                         }
-                    } while (read != -1);
-                    socket.close();
-                } catch (IOException e) {
-                    String msg = e.getMessage();
-                    if (!msg.contains("Connection timed out")) {
-                        Log.e(TAG,
-                                "Error communicating with LV: "
-                                        + e.getMessage());
                     }
+                } while (read != -1);
+                socket.close();
+            } catch (IOException e) {
+                String msg = e.getMessage();
+                if (!msg.contains("Connection timed out")) {
+                    Log.e(TAG, "Error communicating with LV: " + e.getMessage());
                 }
-            } while (keepRunning);
-        } else {
-            Log.e(TAG, "No BT available!");
+            }
         }
         Log.d(TAG, "Stopped LiveView thread.");
     }
 
     public void stopLoop() {
         keepRunning = false;
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG,
+                        "Error while closing server socket: " + e.getMessage());
+            }
+        }
     }
 
     public boolean isLooping() {

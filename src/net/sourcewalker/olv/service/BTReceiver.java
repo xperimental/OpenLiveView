@@ -1,6 +1,7 @@
 package net.sourcewalker.olv.service;
 
-import android.bluetooth.BluetoothAdapter;
+import net.sourcewalker.olv.Prefs;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,29 +25,30 @@ public class BTReceiver extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        Log.d(TAG, "Received broadcast: " + action);
-        if (action == null || Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-            if (BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                sendIntent(context, true);
-            }
-        }
-        if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                    BluetoothAdapter.STATE_OFF);
-            Log.d(TAG, "New state: " + state);
-            switch (state) {
-            case BluetoothAdapter.STATE_OFF:
-            case BluetoothAdapter.STATE_TURNING_OFF:
-            case BluetoothAdapter.STATE_TURNING_ON:
-                sendIntent(context, false);
-                break;
-            case BluetoothAdapter.STATE_ON:
-                sendIntent(context, true);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown bluetooth state: "
-                        + state);
+        Prefs prefs = new Prefs(context);
+        String address = prefs.getDeviceAddress();
+        if (address == null) {
+            Log.w(TAG, "No device configured!");
+        } else {
+            Log.d(TAG, "Device address: " + address);
+            String action = intent.getAction();
+            if (intent.getExtras() != null) {
+                BluetoothDevice device = (BluetoothDevice) intent.getExtras()
+                        .get(BluetoothDevice.EXTRA_DEVICE);
+                Log.d(TAG, "Received broadcast: " + action);
+                if (device != null && address.equals(device.getAddress())) {
+                    if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                        Log.d(TAG, "Connected -> Start service.");
+                        sendIntent(context, true);
+                    }
+                    if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED
+                            .equals(action)
+                            || BluetoothDevice.ACTION_ACL_DISCONNECTED
+                                    .equals(action)) {
+                        Log.d(TAG, "Disconnected -> Stop service.");
+                        sendIntent(context, false);
+                    }
+                }
             }
         }
     }

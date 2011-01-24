@@ -3,6 +3,7 @@ package net.sourcewalker.olv.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 /**
  * This service hosts and controls the thread communicating with the LiveView
@@ -15,10 +16,9 @@ public class LiveViewService extends Service {
     public static final String ACTION_START = "start";
     public static final String ACTION_STOP = "stop";
 
-    private LiveViewThread workerThread = null;
+    private static final String TAG = "LiveViewService";
 
-    public LiveViewService() {
-    }
+    private LiveViewThread workerThread = null;
 
     /*
      * (non-Javadoc)
@@ -63,7 +63,14 @@ public class LiveViewService extends Service {
      */
     private void stopThread() {
         if (workerThread != null && workerThread.isAlive()) {
-            workerThread.stopLoop();
+            try {
+                workerThread.stopLoop();
+                workerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Interrupted while waiting for worker.");
+            } finally {
+                stopSelf();
+            }
         }
     }
 

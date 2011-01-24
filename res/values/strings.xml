@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, LiveViewText!</string>
     <string name="app_name">OpenLiveView</string>
+    <string name="prefs_deviceaddress_key">device.address</string>
+    <string name="prefs_deviceaddress_title">LiveView device</string>
+    <string name="prefs_deviceaddress_summary">Select your LiveView device from the list of paired Bluetooth devices.</string>
 </resources>
