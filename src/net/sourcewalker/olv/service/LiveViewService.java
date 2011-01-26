@@ -1,6 +1,11 @@
 package net.sourcewalker.olv.service;
 
+import net.sourcewalker.olv.LiveViewPreferences;
+import net.sourcewalker.olv.R;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -16,9 +21,32 @@ public class LiveViewService extends Service {
     public static final String ACTION_START = "start";
     public static final String ACTION_STOP = "stop";
 
+    private static final int SERVICE_NOTIFY = 100;
+
     private static final String TAG = "LiveViewService";
 
     private LiveViewThread workerThread = null;
+    private Notification notification;
+
+    /*
+     * (non-Javadoc)
+     * @see android.app.Service#onCreate()
+     */
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        notification = new Notification(R.drawable.icon,
+                "LiveView connected...", System.currentTimeMillis());
+        Context context = getApplicationContext();
+        CharSequence contentTitle = getString(R.string.app_name);
+        CharSequence contentText = getString(R.string.notify_service_running);
+        Intent notificationIntent = new Intent(this, LiveViewPreferences.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+        notification.setLatestEventInfo(context, contentTitle, contentText,
+                contentIntent);
+    }
 
     /*
      * (non-Javadoc)
@@ -52,6 +80,8 @@ public class LiveViewService extends Service {
      */
     private void startThread() {
         if (workerThread == null || !workerThread.isLooping()) {
+            startForeground(SERVICE_NOTIFY, notification);
+
             workerThread = new LiveViewThread(this);
             workerThread.start();
         }
@@ -69,6 +99,7 @@ public class LiveViewService extends Service {
             } catch (InterruptedException e) {
                 Log.e(TAG, "Interrupted while waiting for worker.");
             } finally {
+                stopForeground(true);
                 stopSelf();
             }
         }

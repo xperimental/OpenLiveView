@@ -4,4 +4,5 @@
     <string name="prefs_deviceaddress_key">device.address</string>
     <string name="prefs_deviceaddress_title">LiveView device</string>
     <string name="prefs_deviceaddress_summary">Select your LiveView device from the list of paired Bluetooth devices.</string>
+    <string name="notify_service_running">LiveView connected.</string>
 </resources>
