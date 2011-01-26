@@ -17,6 +17,7 @@ import net.sourcewalker.olv.messages.calls.MenuItem;
 import net.sourcewalker.olv.messages.calls.MessageAck;
 import net.sourcewalker.olv.messages.calls.NavigationResponse;
 import net.sourcewalker.olv.messages.calls.SetMenuSize;
+import net.sourcewalker.olv.messages.calls.SetVibrate;
 import net.sourcewalker.olv.messages.events.CapsResponse;
 import net.sourcewalker.olv.messages.events.Navigation;
 import android.bluetooth.BluetoothAdapter;
@@ -109,6 +110,8 @@ public class LiveViewThread extends Thread {
                                         "LV capabilities: " + caps.toString());
                                 socket.getOutputStream().write(
                                         new SetMenuSize((byte) 1).getEncoded());
+                                socket.getOutputStream().write(
+                                        new SetVibrate(0, 50).getEncoded());
                                 break;
                             case MessageConstants.MSG_GETTIME:
                                 Log.d(TAG, "Sending current time...");
