@@ -4,12 +4,15 @@ import java.nio.ByteBuffer;
 
 import net.sourcewalker.olv.messages.events.CapsResponse;
 import net.sourcewalker.olv.messages.events.DeviceStatus;
-import net.sourcewalker.olv.messages.events.GetTime;
 import net.sourcewalker.olv.messages.events.GetMenuItems;
+import net.sourcewalker.olv.messages.events.GetTime;
 import net.sourcewalker.olv.messages.events.Navigation;
 import net.sourcewalker.olv.messages.events.ResultEvent;
+import android.util.Log;
 
 public final class MessageDecoder {
+
+    private static final String TAG = "MessageDecoder";
 
     private static LiveViewEvent newInstanceForId(byte id)
             throws DecodeException {
@@ -34,17 +37,23 @@ public final class MessageDecoder {
 
     public static final LiveViewEvent decode(byte[] message, int length)
             throws DecodeException {
-        ByteBuffer buffer = ByteBuffer.wrap(message, 0, length);
-        byte msgId = buffer.get();
-        buffer.get();
-        int payloadLen = buffer.getInt();
-        if (payloadLen + 6 == length) {
-            LiveViewEvent result = newInstanceForId(msgId);
-            result.readData(buffer);
-            return result;
+        if (length < 4) {
+            Log.w(TAG, "Got empty message!");
+            throw new DecodeException("Can't decode empty message!");
         } else {
-            throw new DecodeException("Invalid message length: "
-                    + message.length + " (should be " + (payloadLen + 6) + ")");
+            ByteBuffer buffer = ByteBuffer.wrap(message, 0, length);
+            byte msgId = buffer.get();
+            buffer.get();
+            int payloadLen = buffer.getInt();
+            if (payloadLen + 6 == length) {
+                LiveViewEvent result = newInstanceForId(msgId);
+                result.readData(buffer);
+                return result;
+            } else {
+                throw new DecodeException("Invalid message length: "
+                        + message.length + " (should be " + (payloadLen + 6)
+                        + ")");
+            }
         }
     }
 
