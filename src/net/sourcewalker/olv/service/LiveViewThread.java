@@ -44,6 +44,8 @@ public class LiveViewThread extends Thread {
 
     private BluetoothServerSocket serverSocket;
 
+    private long startUpTime;
+
     public LiveViewThread(Context context) {
         super("LiveViewThread");
 
@@ -73,6 +75,7 @@ public class LiveViewThread extends Thread {
     @Override
     public void run() {
         Log.d(TAG, "Starting LiveView thread.");
+        startUpTime = System.currentTimeMillis();
         serverSocket = null;
         try {
             Log.d(TAG, "Starting server...");
@@ -108,6 +111,9 @@ public class LiveViewThread extends Thread {
                                 CapsResponse caps = (CapsResponse) response;
                                 Log.d(TAG,
                                         "LV capabilities: " + caps.toString());
+                                Log.d(TAG,
+                                        "LV Version: "
+                                                + caps.getSoftwareVersion());
                                 socket.getOutputStream().write(
                                         new SetMenuSize((byte) 1).getEncoded());
                                 socket.getOutputStream().write(
@@ -161,6 +167,14 @@ public class LiveViewThread extends Thread {
             }
         }
         Log.d(TAG, "Stopped LiveView thread.");
+        long runtime = (System.currentTimeMillis() - startUpTime) / 1000;
+        long runHour = runtime / 3600;
+        runtime -= runHour * 3600;
+        long runMinute = runtime / 60;
+        runtime -= runMinute * 60;
+        Log.d(TAG, String.format(
+                "Service runtime: %d hours %d minutes %d seconds", runHour,
+                runMinute, runtime));
     }
 
     public void stopLoop() {
