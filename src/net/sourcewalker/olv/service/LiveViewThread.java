@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+import net.sourcewalker.olv.LiveViewDbHelper;
 import net.sourcewalker.olv.LiveViewPreferences;
 import net.sourcewalker.olv.R;
 import net.sourcewalker.olv.messages.DecodeException;
@@ -156,9 +157,11 @@ public class LiveViewThread extends Thread {
         runtime -= runHour * 3600;
         long runMinute = runtime / 60;
         runtime -= runMinute * 60;
-        Log.d(TAG, String.format(
+        String message = String.format(
                 "Service runtime: %d hours %d minutes %d seconds", runHour,
-                runMinute, runtime));
+                runMinute, runtime);
+        Log.d(TAG, message);
+        LiveViewDbHelper.logMessage(parentService, message);
 
         // Stop surrounding service
         ((NotificationManager) parentService

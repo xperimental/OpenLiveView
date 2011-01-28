@@ -17,6 +17,8 @@
                     android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".LogViewActivity" />
         <service
             android:name=".service.LiveViewService" />
         <receiver
