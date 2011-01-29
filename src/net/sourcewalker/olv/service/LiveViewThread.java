@@ -12,7 +12,6 @@ import net.sourcewalker.olv.messages.DecodeException;
 import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.LiveViewEvent;
 import net.sourcewalker.olv.messages.MessageConstants;
-import net.sourcewalker.olv.messages.MessageDecoder;
 import net.sourcewalker.olv.messages.UShort;
 import net.sourcewalker.olv.messages.calls.CapsRequest;
 import net.sourcewalker.olv.messages.calls.DeviceStatusAck;
@@ -119,30 +118,23 @@ public class LiveViewThread extends Thread {
         try {
             Log.d(TAG, "Listening for LV...");
             clientSocket = serverSocket.accept();
+            EventReader reader = new EventReader(clientSocket.getInputStream());
             // Single connect only
             serverSocket.close();
             serverSocket = null;
             Log.d(TAG, "LV connected.");
             sendCall(new CapsRequest());
             Log.d(TAG, "Message sent.");
-            byte[] buffer = new byte[4096];
-            int read;
             do {
-                read = clientSocket.getInputStream().read(buffer);
-                Log.d(TAG, "Received " + read + " bytes.");
-                if (read != -1) {
-                    try {
-                        LiveViewEvent response = MessageDecoder.decode(buffer,
-                                read);
-                        sendCall(new MessageAck(response.getId()));
-                        Log.d(TAG, "Got message: " + response);
-                        processEvent(response);
-                    } catch (DecodeException e) {
-                        Log.e(TAG, "Error decoding message: " + e.getMessage());
-                    }
+                try {
+                    LiveViewEvent response = reader.readMessage();
+                    sendCall(new MessageAck(response.getId()));
+                    Log.d(TAG, "Got message: " + response);
+                    processEvent(response);
+                } catch (DecodeException e) {
+                    Log.e(TAG, "Error decoding message: " + e.getMessage());
                 }
-            } while (read != -1);
-            clientSocket.close();
+            } while (true);
         } catch (IOException e) {
             String msg = e.getMessage();
             if (!msg.contains("Connection timed out")) {

@@ -15,8 +15,6 @@ public class LiveViewService extends Service {
     public static final String ACTION_START = "start";
     public static final String ACTION_STOP = "stop";
 
-    private static final String TAG = "LiveViewService";
-
     private LiveViewThread workerThread = null;
 
     /*
