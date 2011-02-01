@@ -1,10 +1,9 @@
-package net.sourcewalker.olv;
+package net.sourcewalker.olv.data;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 
 /**
  * Database currently only holds logs.
@@ -29,7 +28,7 @@ public class LiveViewDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Log.SCHEMA);
+        db.execSQL(LiveViewData.Log.SCHEMA);
     }
 
     /*
@@ -41,44 +40,18 @@ public class LiveViewDbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion != DB_VERSION) {
-            db.execSQL("DROP TABLE " + Log.TABLE);
+            db.execSQL("DROP TABLE " + LiveViewData.Log.TABLE);
             onCreate(db);
         }
-    }
-
-    public static final class Log implements BaseColumns {
-
-        public static final String TABLE = "log";
-
-        public static final String TIMESTAMP = "time";
-
-        public static final String MESSAGE = "message";
-
-        public static final String DATETIME = "datetime";
-
-        public static final String SCHEMA = "CREATE TABLE " + TABLE + " ("
-                + _ID + " INTEGER PRIMARY KEY, " + TIMESTAMP + " INTEGER, "
-                + MESSAGE + " TEXT)";
-
-        public static final String[] DEFAULT_PROJECTION = new String[] {
-                _ID,
-                TIMESTAMP,
-                "DATETIME(" + TIMESTAMP
-                        + " / 1000, 'unixepoch', 'localtime') AS " + DATETIME,
-                MESSAGE };
-
-        public static final String DEFAULT_ORDER = TIMESTAMP + " DESC, " + _ID
-                + " ASC";
-
     }
 
     public static void logMessage(Context context, String message) {
         LiveViewDbHelper helper = new LiveViewDbHelper(context);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(Log.TIMESTAMP, System.currentTimeMillis());
-        values.put(Log.MESSAGE, message);
-        db.insert(Log.TABLE, Log._ID, values);
+        values.put(LiveViewData.Log.TIMESTAMP, System.currentTimeMillis());
+        values.put(LiveViewData.Log.MESSAGE, message);
+        db.insert(LiveViewData.Log.TABLE, LiveViewData.Log._ID, values);
         db.close();
     }
 

@@ -1,6 +1,6 @@
 package net.sourcewalker.olv.service;
 
-import net.sourcewalker.olv.Prefs;
+import net.sourcewalker.olv.data.Prefs;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-import net.sourcewalker.olv.LiveViewDbHelper;
 import net.sourcewalker.olv.LiveViewPreferences;
 import net.sourcewalker.olv.R;
+import net.sourcewalker.olv.data.LiveViewDbHelper;
 import net.sourcewalker.olv.messages.DecodeException;
 import net.sourcewalker.olv.messages.LiveViewCall;
 import net.sourcewalker.olv.messages.LiveViewEvent;

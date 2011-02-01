@@ -1,5 +1,6 @@
-package net.sourcewalker.olv;
+package net.sourcewalker.olv.data;
 
+import net.sourcewalker.olv.R;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;

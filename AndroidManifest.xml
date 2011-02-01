@@ -32,6 +32,9 @@
                     android:name="android.bluetooth.device.action.ACL_DISCONNECT_REQUESTED" />
             </intent-filter>
         </receiver>
+        <provider
+            android:name=".data.LiveViewDataProvider"
+            android:authorities="net.sourcewalker.olv" />
     </application>
     <uses-sdk
         android:minSdkVersion="8" />
