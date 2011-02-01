@@ -3,5 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_viewlog"
-        android:title="@string/menu_viewlog" />
+        android:title="@string/menu_viewlog"
+        android:icon="@drawable/menu_log" />
 </menu>
